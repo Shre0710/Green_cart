@@ -18,6 +18,8 @@ export const AppContextProvider = ({ children }) => {
     const[products,setProducts]=useState([]);
     
     const[cartItems,setCartItems]=useState({})
+    const[searchQuery,setSearchQuery]=useState({})
+
 
 
     //fetch all products
@@ -61,13 +63,14 @@ export const AppContextProvider = ({ children }) => {
 
     useEffect(()=>{
         fetchProducts()
+        console.log('AppContext: Products loaded:', dummyProducts.length)
     },[])
 
 
 
     const value = {navigate,user,setUser,setIsSeller,isSeller,
         showUserLogin,setShowUserLogin,products,currency,addToCart,cartItems,
-        updateCartItem,removeFromCart
+        updateCartItem,removeFromCart,searchQuery,setSearchQuery
     };
 
      // Add any global state or functions you want to provide here

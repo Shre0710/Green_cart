@@ -1,10 +1,9 @@
 import React from 'react'
-import {  categories } from '../assets/assets'
+import { categories } from '../assets/assets'
 import { useAppContext } from '../context/AppContext'
 
 const Categories = () => {
-
-    const{navigate} =useAppContext();
+    const { navigate } = useAppContext();
 
     return (
         <div className='mt-16'>
@@ -15,10 +14,9 @@ const Categories = () => {
                     <div key={index} className='group cursor-pointer py-5 px-3 gap-2 rounded-lg flex flex-col justify-center items-center'
                         style={{ backgroundColor: category.bgColor }}
                         onClick={() => {
-
-                            navigate('/products/${category.path.toLowerCase()}');
+                            console.log('Navigating to category:', category.path.toLowerCase());
+                            navigate(`/products/${category.path.toLowerCase()}`);
                             scrollTo(0, 0);
-
                         }}
                     >
                         <img src={category.image} alt={category.text}
