@@ -70,7 +70,7 @@ export const AppContextProvider = ({ children }) => {
     return totalCount;
 }
 
-// Get Cart Total Amount
+    // Get Cart Total Amount
 const getCartAmount = ()=>{
     let totalAmount = 0;
     for (const items in cartItems){
@@ -83,6 +83,13 @@ const getCartAmount = ()=>{
 
 }
 
+// Update product stock status
+const updateProductStock = (productId, inStock) => {
+    setProducts(prevProducts => prevProducts.map(product =>
+        product._id === productId ? { ...product, inStock } : product
+    ));
+}
+
 
     useEffect(()=>{
         fetchProducts()
@@ -93,7 +100,7 @@ const getCartAmount = ()=>{
 
     const value = {navigate,user,setUser,setIsSeller,isSeller,
         showUserLogin,setShowUserLogin,products,currency,addToCart,cartItems,
-        updateCartItem,removeFromCart,searchQuery,setSearchQuery,getCartAmount,getCartCount
+        updateCartItem,removeFromCart,searchQuery,setSearchQuery,getCartAmount,getCartCount,updateProductStock
     };
 
      // Add any global state or functions you want to provide here
