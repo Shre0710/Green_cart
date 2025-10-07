@@ -1,3 +1,4 @@
+// models/user.js
 import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema({
@@ -5,8 +6,8 @@ const userSchema = new mongoose.Schema({
     email: {type: String, required: true, unique: true},
     password: {type: String, required: true },
     cartItems: {type: Object, default: {} }
-}, {minimize: false})
+}, {minimize: false});
 
-const User = mongoose.models.user || mongoose.model('user', userSchema)
+const User = mongoose.models.user || mongoose.model('user', userSchema);
 
-export default User
+export default User;
