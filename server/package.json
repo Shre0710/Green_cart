@@ -2,9 +2,8 @@
   "name": "server",
   "version": "1.0.0",
   "main": "server.js",
-  "type":"module",
+  "type": "module",
   "scripts": {
-   
     "start": "node server.js",
     "server": "nodemon server.js"
   },
@@ -21,6 +20,7 @@
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.19.0",
+    "multer": "^2.0.2",
     "stripe": "^19.1.0"
   },
   "devDependencies": {
