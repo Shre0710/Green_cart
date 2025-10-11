@@ -8,6 +8,7 @@ import { dummyProducts } from "../assets/assets";
 import { toast } from "react-hot-toast";
 import axios, { Axios } from "axios";
 
+
 axios.defaults.withCredentials = true;
 axios.defaults.baseURL = import.meta.env.VITE_BACKEND_URL;
 
@@ -63,40 +64,44 @@ export const AppContextProvider = ({ children }) => {
     }
 
 
- // Fetch User Auth Status , User Data and Cart Items
-const fetchUser = async () => {
-    try {
-        const {data} = await axios.get('/api/user/is-auth');
-        if (data.success) {
-            setUser(data.user)
-            setCartItems(data.user.cartItems)
+    // Fetch User Auth Status , User Data and Cart Items
+    const fetchUser = async () => {
+        try {
+            const { data } = await axios.get('/api/user/is-auth');
+            if (data.success) {
+                setUser(data.user)
+                setCartItems(data.user.cartItems)
+            }
+        } catch (error) {
+            setUser(null)
         }
-    } catch (error) {
-        setUser(null)
     }
-}
 
 
 
-   // Fetch All Products
-const fetchProducts = async () => {
-    try {
-        const { data } = await axios.get('/api/product/list')
-        if(data.success){
-            setProducts(data.products)
-        }else{
-            toast.error(data.message)
+    // Fetch All Products
+    const fetchProducts = async () => {
+        try {
+            const { data } = await axios.get('/api/product/list')
+            if (data.success) {
+                setProducts(data.products)
+            } else {
+                toast.error(data.message)
+            }
+        } catch (error) {
+            toast.error(error.message)
         }
-    } catch (error) {
-        toast.error(error.message)
     }
-}
 
 
 
 
     //add product to cart
-    const addToCart = (itemId) => {
+    const addToCart = async (itemId) => {
+        if (!user) {
+            setShowUserLogin(true);
+            return;
+        }
         let cartData = structuredClone(cartItems);
 
         if (cartData[itemId]) {
@@ -105,19 +110,29 @@ const fetchProducts = async () => {
             cartData[itemId] = 1;
         }
         setCartItems(cartData);
-        toast.success('Item added to cart')
+        try {
+            await axios.post('/api/cart/update', { cartItems: cartData });
+            toast.success('Item added to cart');
+        } catch (error) {
+            toast.error('Failed to update cart');
+        }
     }
 
     //update cart items quantity
-    const updateCartItem = (itemId, quantity) => {
+    const updateCartItem = async (itemId, quantity) => {
         let cartData = structuredClone(cartItems);
         cartData[itemId] = quantity;
         setCartItems(cartData);
-        toast.success('Cart updated')
+        try {
+            await axios.post('/api/cart/update', { cartItems: cartData });
+            toast.success('Cart updated');
+        } catch (error) {
+            toast.error('Failed to update cart');
+        }
     }
 
     //remove from cart
-    const removeFromCart = (itemId) => {
+    const removeFromCart = async (itemId) => {
         let cartData = structuredClone(cartItems);
         if (cartData[itemId]) {
             cartData[itemId] -= 1;
@@ -125,8 +140,13 @@ const fetchProducts = async () => {
                 delete cartData[itemId]
             }
         }
-        toast.success('Item removed from cart')
         setCartItems(cartData);
+        try {
+            await axios.post('/api/cart/update', { cartItems: cartData });
+            toast.success('Item removed from cart');
+        } catch (error) {
+            toast.error('Failed to update cart');
+        }
     }
 
     // Get Cart Item Count 
@@ -172,11 +192,12 @@ const fetchProducts = async () => {
 
 
 
+
     const value = {
         navigate, user, setUser: setUserWithPersistence, setIsSeller: setIsSellerWithPersistence, isSeller,
         showUserLogin, setShowUserLogin, products, currency, addToCart, cartItems,
         updateCartItem, removeFromCart, searchQuery, setSearchQuery, getCartAmount, getCartCount, updateProductStock,
-        axios,fetchSeller,fetchProducts,fetchUser
+        axios, fetchSeller, fetchProducts, fetchUser ,setCartItems
 
     };
 
