@@ -1,5 +1,6 @@
 import React from 'react';
 import { useAppContext } from '../context/AppContext';
+import { toast } from 'react-hot-toast';
 
 const EyeIcon = ({ open }) => (
   open ? (
@@ -15,7 +16,7 @@ const EyeIcon = ({ open }) => (
 );
 
 const Login = () => {
-  const { setShowUserLogin, setUser } = useAppContext();
+  const { setShowUserLogin, setUser ,axios , navigate, user} = useAppContext();
 
   const [state, setState] = React.useState('register');
   const [name, setName] = React.useState('');
@@ -24,35 +25,113 @@ const Login = () => {
   const [registeredUser, setRegisteredUser] = React.useState(null);
   const [error, setError] = React.useState('');
   const [showPassword, setShowPassword] = React.useState(false);
-
-  const onSubmitHandler = async (event) => {
-    event.preventDefault();
-    setError('');
-
-    if (state === 'register') {
-      setRegisteredUser({ name, email, password });
-      setState('login');
-      setName('');
-      setEmail('');
-      setPassword('');
-    } else {
-      if (!registeredUser) {
-        setError('No registered user found. Please register first.');
-        return;
-      }
-      if (email === registeredUser.email && password === registeredUser.password) {
-        setUser({ name: registeredUser.name, email: registeredUser.email });
-        setShowUserLogin(false);
-      } else {
-        setError('Invalid email or password.');
-      }
-    }
-  };
+  const [showUserExistsImage, setShowUserExistsImage] = React.useState(false);
 
   const onInputChange = (setter) => (e) => {
     setter(e.target.value);
     if (error) setError('');
+    if (showUserExistsImage) setShowUserExistsImage(false);
   };
+
+  if (user) {
+    return (
+      <div
+        onClick={() => setShowUserLogin(false)}
+        className="fixed top-0 bottom-0 left-0 right-0 z-30 flex items-center text-sm text-gray-600 bg-black/50"
+      >
+        <div
+          onClick={(e) => e.stopPropagation()}
+          className="flex flex-col gap-4 m-auto items-center p-8 py-12 w-80 sm:w-[352px] rounded-lg shadow-xl border border-gray-200 bg-white"
+        >
+          <p className="text-2xl font-medium">
+            <span className="text-primary">You are already logged in.</span>
+          </p>
+          <button
+            onClick={() => setShowUserLogin(false)}
+            className="bg-primary hover:bg-primary transition-all text-white w-full py-2 rounded-md cursor-pointer"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  const onSubmitHandler = async (event) => {
+    try {
+        event.preventDefault();
+        const {data} = await axios.post(`/api/user/${state}`, {
+            name, email, password
+        });
+        if (data.success) {
+            if (state === 'register') {
+                toast.success('Signup successful, please login');
+                setState('login');
+                setName('');
+                setPassword('');
+                // keep email for login
+            } else {
+                navigate('/')
+                setUser(data.user)
+                setShowUserLogin(false)
+            }
+        }else{
+            if (state === 'register' && data.message === 'User already exists') {
+                setShowUserExistsImage(true);
+                setState('login');
+                setName('');
+                setPassword('');
+                // keep email for login
+            } else {
+                toast.error(data.message)
+            }
+        }
+    } catch (error) {
+        toast.error(error.response?.data?.message || error.message)
+    }
+}
+
+
+
+
+  // const onSubmitHandler = async (event) => {
+  //   event.preventDefault();
+  //   setError('');
+
+  //   if (state === 'register') {
+  //     setRegisteredUser({ name, email, password });
+  //     setState('login');
+  //     setName('');
+  //     setEmail('');
+  //     setPassword('');
+  //   } else {
+  //     if (!registeredUser) {
+  //       setError('No registered user found. Please register first.');
+  //       return;
+  //     }
+  //     if (email === registeredUser.email && password === registeredUser.password) {
+  //       setUser({ name: registeredUser.name, email: registeredUser.email });
+  //       setShowUserLogin(false);
+  //     } else {
+  //       setError('Invalid email or password.');
+  //     }
+  //   }
+  // };
+
+  // const onInputChange = (setter) => (e) => {
+  //   setter(e.target.value);
+  //   if (error) setError('');
+  // };
+
+
+
+
+
+
+
+
+
+
 
   return (
     <div
@@ -115,6 +194,13 @@ const Login = () => {
             <EyeIcon open={showPassword} />
           </button>
         </div>
+
+        {showUserExistsImage && (
+            <div className="w-full text-center">
+                <img src="/src/assets/profile_icon.png" alt="User already exists" className="mx-auto w-16 h-16 mb-2" />
+                <p className="text-red-600">User already exists. Please login with your credentials.</p>
+            </div>
+        )}
 
         {error && <p className="text-red-600 w-full text-center">{error}</p>}
 

@@ -1,3 +1,6 @@
+
+
+
 import { createContext, useEffect } from "react";
 import { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -60,14 +63,39 @@ export const AppContextProvider = ({ children }) => {
     }
 
 
-
-
-    //fetch all products
-    const fetchProducts = async () => {
-        setProducts(dummyProducts)
+ // Fetch User Auth Status , User Data and Cart Items
+const fetchUser = async () => {
+    try {
+        const {data} = await axios.get('/api/user/is-auth');
+        if (data.success) {
+            setUser(data.user)
+            setCartItems(data.user.cartItems)
+        }
+    } catch (error) {
+        setUser(null)
     }
+}
 
-    //add to cart
+
+
+   // Fetch All Products
+const fetchProducts = async () => {
+    try {
+        const { data } = await axios.get('/api/product/list')
+        if(data.success){
+            setProducts(data.products)
+        }else{
+            toast.error(data.message)
+        }
+    } catch (error) {
+        toast.error(error.message)
+    }
+}
+
+
+
+
+    //add product to cart
     const addToCart = (itemId) => {
         let cartData = structuredClone(cartItems);
 
@@ -134,10 +162,7 @@ export const AppContextProvider = ({ children }) => {
     useEffect(() => {
         fetchProducts()
         fetchSeller()
-        const storedUser = localStorage.getItem('user');
-        if (storedUser) {
-            setUser(JSON.parse(storedUser));
-        }
+        fetchUser()
         const storedIsSeller = localStorage.getItem('isSeller');
         if (storedIsSeller === 'true') {
             setIsSeller(true);
@@ -151,7 +176,7 @@ export const AppContextProvider = ({ children }) => {
         navigate, user, setUser: setUserWithPersistence, setIsSeller: setIsSellerWithPersistence, isSeller,
         showUserLogin, setShowUserLogin, products, currency, addToCart, cartItems,
         updateCartItem, removeFromCart, searchQuery, setSearchQuery, getCartAmount, getCartCount, updateProductStock,
-        axios,fetchSeller
+        axios,fetchSeller,fetchProducts,fetchUser
 
     };
 

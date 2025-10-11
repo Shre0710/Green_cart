@@ -1,0 +1,4 @@
+- [x] Add showUserExistsImage state to Login.jsx
+- [x] Modify onSubmitHandler in Login.jsx to handle 'User already exists' error: set showUserExistsImage to true, switch to login state, keep email
+- [x] Add conditional rendering in Login.jsx form to display image and message when showUserExistsImage is true
+- [x] Test the functionality by attempting to register with an existing email
